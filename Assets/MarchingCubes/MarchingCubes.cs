@@ -4,13 +4,13 @@ using System.Collections;
 
 public class MarchingCubes : MonoBehaviour
 {
-
+    /*
     public struct GridCell
     {
         public Vector3[] p;
         public bool[] val;
     }
-
+    */
     private int cubeIndex;
     private Vector3[] vertList = new Vector3[12];
     private GridCell cell;
@@ -326,11 +326,15 @@ public class MarchingCubes : MonoBehaviour
 
     public void Start()
     {
+        vertices = new List<Vector3>();
+        triangles = new List<int>();
         Initialize();
+
     }
 
     public void Initialize()
     {
+        /*
         cell = new GridCell();
         //assign vertex positions
         //create dummy cell for testing purposes to see if the algorithm is working
@@ -361,7 +365,7 @@ public class MarchingCubes : MonoBehaviour
 
         MarchCell(cell);
         CreateMesh(mesh);
-
+        */
     }
 
     public void MarchCell(GridCell cell)
@@ -484,5 +488,12 @@ public class MarchingCubes : MonoBehaviour
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         return mesh;
+    }
+
+    public void ClearLists()
+    {
+        //clear previous shit
+        vertices = new List<Vector3>();
+        triangles = new List<int>();
     }
 }

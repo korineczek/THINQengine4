@@ -4,16 +4,10 @@ using System.Collections;
 
 public class MarchingCubes : MonoBehaviour
 {
-    /*
-    public struct GridCell
-    {
-        public Vector3[] p;
-        public bool[] val;
-    }
-    */
     private int cubeIndex;
     private Vector3[] vertList = new Vector3[12];
     private GridCell cell;
+    private Vector3 chunkOffset;
 
     //debug shit
     public Transform DebugCubeTrue;
@@ -326,6 +320,7 @@ public class MarchingCubes : MonoBehaviour
 
     public void Start()
     {
+        chunkOffset = this.transform.position;
         vertices = new List<Vector3>();
         triangles = new List<int>();
         Initialize();
@@ -441,9 +436,9 @@ public class MarchingCubes : MonoBehaviour
         for (int i = 0; triTable[cubeIndex, i] != -1; i += 3)
         {
             int index = vertices.Count;
-            vertices.Add(vertList[triTable[cubeIndex, i    ]]);
-            vertices.Add(vertList[triTable[cubeIndex, i + 2]]);
-            vertices.Add(vertList[triTable[cubeIndex, i + 1]]);
+            vertices.Add(vertList[triTable[cubeIndex, i    ]] + chunkOffset);
+            vertices.Add(vertList[triTable[cubeIndex, i + 2]] + chunkOffset);
+            vertices.Add(vertList[triTable[cubeIndex, i + 1]] + chunkOffset);
             triangles.Add(index);
             triangles.Add(index + 1);
             triangles.Add(index + 2);
@@ -483,8 +478,12 @@ public class MarchingCubes : MonoBehaviour
         }
         mesh.Clear();
         mesh.name = "TestMesh";
+        /*
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
+         */
+        mesh.SetVertices(vertices);
+        mesh.SetTriangles(triangles,0);
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         return mesh;

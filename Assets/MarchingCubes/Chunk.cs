@@ -18,6 +18,11 @@ public class Chunk : MonoBehaviour
     private int yPos;
     private int zPos;
 
+    //Chunk references
+    private Chunk chunkX;
+    private Chunk chunkY;
+    private Chunk chunkZ;
+
 	// Use this for initialization
 	void Start ()
 	{

@@ -323,45 +323,8 @@ public class MarchingCubes : MonoBehaviour
         chunkOffset = this.transform.position;
         vertices = new List<Vector3>();
         triangles = new List<int>();
-        Initialize();
-
     }
 
-    public void Initialize()
-    {
-        /*
-        cell = new GridCell();
-        //assign vertex positions
-        //create dummy cell for testing purposes to see if the algorithm is working
-        cell.p = new Vector3[]
-        {
-            new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(1, 0, -1), new Vector3(0, 0, -1), new Vector3(0, 1, 0),
-            new Vector3(1, 1, 0), new Vector3(1, 1, -1), new Vector3(0, 1, -1)
-        };
-        cell.val = new bool[] { true, false, true, false, true, false, true, false };
-        
-        vertices = new List<Vector3>();
-        triangles = new List<int>();
-        mesh = this.GetComponent<MeshFilter>().mesh;
-
-        //debug section
-        for (int i = 0; i < cell.p.Length; i++)
-        {
-            if (cell.val[i])
-            {
-                Instantiate(DebugCubeTrue, cell.p[i], Quaternion.identity);
-            }
-            else
-            {
-                Instantiate(DebugCubeFalse, cell.p[i], Quaternion.identity);
-            }
-        }
-        //end of debug section
-
-        MarchCell(cell);
-        CreateMesh(mesh);
-        */
-    }
 
     public void MarchCell(GridCell cell)
     {
@@ -476,12 +439,8 @@ public class MarchingCubes : MonoBehaviour
         {
             mesh = new Mesh();
         }
-        mesh.Clear();
+
         mesh.name = "TestMesh";
-        /*
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-         */
         mesh.SetVertices(vertices);
         mesh.SetTriangles(triangles,0);
         mesh.RecalculateNormals();

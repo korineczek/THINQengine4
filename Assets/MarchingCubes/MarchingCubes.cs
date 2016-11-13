@@ -318,7 +318,7 @@ public class MarchingCubes : MonoBehaviour
 
     #endregion
 
-    public void Start()
+    public void Awake()
     {
         chunkOffset = this.transform.position;
         vertices = new List<Vector3>();

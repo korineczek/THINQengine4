@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 
+[ExecuteInEditMode]
 public class MarchingCubes : MonoBehaviour
 {
     private int cubeIndex;

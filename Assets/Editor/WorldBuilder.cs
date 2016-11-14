@@ -31,4 +31,9 @@ public class WorldBuilder : EditorWindow
 
 
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(Vector3.zero, Vector3.one*10);
+    }
 }

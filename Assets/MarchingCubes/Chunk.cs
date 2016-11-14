@@ -5,16 +5,16 @@ public class Chunk : MonoBehaviour
 {
 
 
-    private int size = 4;
+    private int size = 16;
     public bool isBorderChunk = true;
     public Transform DebugCube;
     private Vector3 ChunkPos;
     public Vector3 ChunkID = new Vector3(0,0,0);
 
-    private Node[,,] chunkVals = new Node[4,4,4];
+    private Node[,,] chunkVals = new Node[16,16,16];
 
     //debug cubes
-    private DebugCube[,,] debugCubes = new DebugCube[4,4,4];
+    private DebugCube[,,] debugCubes = new DebugCube[16,16,16];
 
 
     private GridCell currentCell;
@@ -160,6 +160,7 @@ public class Chunk : MonoBehaviour
             }
         }
         marchingRenderer.CreateMesh(this.GetComponent<MeshFilter>().mesh);
+        this.GetComponent<MeshCollider>().sharedMesh = this.GetComponent<MeshFilter>().mesh;
     }
 
     private bool GetValue(int currentEdge, int pos, int x, int y, int z)

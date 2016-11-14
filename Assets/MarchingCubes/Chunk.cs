@@ -35,30 +35,6 @@ public class Chunk : MonoBehaviour
     public Chunk chunkXYZ;
     public Chunk[] chunkNeighbors;
 
-    //Edge Lookup Table
-    private bool[,] neighborTable = new bool[8, 8]{{true, true, true, true, true, true, true, true},
-                                                 {true,false, true, false, true, false, true, false},
-                                                 {true,true, false, false, true, true, false, false},
-                                                 {true,false, false, false, true, false, false, false},
-                                                 {true,true, true, true, false, false, false, false},
-                                                 {true,false, true, false, false, false, false, false},
-                                                 {true,true, false, false, false, false, false,false},
-                                                 {true,false, false, false, false, false, false, false}};
-
-    //Neighborhood Lookup Table
-    private Vector3[,] chunkTable = new Vector3[8,8]
-    {
-        {Vector3.zero, Vector3.zero      , Vector3.zero      , Vector3.zero      , Vector3.zero      , Vector3.zero      , Vector3.zero      , Vector3.zero      },
-        {Vector3.zero, new Vector3(0,1,1), Vector3.zero      , new Vector3(0,1,1), Vector3.zero      , new Vector3(0,1,1), Vector3.zero      , new Vector3(0,1,1)},
-        {Vector3.zero, Vector3.zero      , new Vector3(1,0,1), new Vector3(1,0,1), Vector3.zero      , Vector3.zero      , new Vector3(1,0,1), new Vector3(1,0,1)},
-        {Vector3.zero, new Vector3(0,2,1), new Vector3(2,0,1), new Vector3(0,0,1), Vector3.zero      , new Vector3(0,2,1), new Vector3(2,0,1), new Vector3(0,0,1)},
-        {Vector3.zero, Vector3.zero      , Vector3.zero      , Vector3.zero      , new Vector3(1,1,0), new Vector3(1,1,0), new Vector3(1,1,0), new Vector3(1,1,0)},
-        {Vector3.zero, new Vector3(0,1,2), Vector3.zero      , new Vector3(0,1,2), new Vector3(2,1,0), new Vector3(0,1,0), new Vector3(2,1,0), new Vector3(0,1,0)},
-        {Vector3.zero, Vector3.zero      , new Vector3(1,0,2), new Vector3(1,0,2), new Vector3(1,2,0), new Vector3(1,2,0), new Vector3(1,0,0), new Vector3(1,0,0)},
-        {Vector3.zero, new Vector3(0,2,2), new Vector3(2,0,2), new Vector3(0,0,2), new Vector3(2,2,0), new Vector3(0,2,0), new Vector3(2,0,0), new Vector3(0,0,0)}
-    };
-
-
 	// Use this for initialization
 	void Start ()
 	{
@@ -79,13 +55,11 @@ public class Chunk : MonoBehaviour
                     Transform currentDebug = Instantiate(DebugCube, new Vector3(x + transform.position.x, y + transform.position.y, z + transform.position.z), Quaternion.identity) as Transform;
                     currentDebug.SetParent(this.transform);
                     debugCubes[x, y, z] = currentDebug.GetComponent<DebugCube>();
-                    //debug stitch test
-                    /*
-                    if (y == 0 && z>0)
+                    if (Random.Range(0,2) == 0)
                     {
-                        chunkVals[x, 0, z] = true;
+                        chunkVals[x, y, z] = true;
                     }
-                     */
+                    
                 }
             }
         }
@@ -146,35 +120,14 @@ public class Chunk : MonoBehaviour
                         //vertex value 0 never has to be doublechecked, it is always within the current chunk
                         currentCell.val[0] = chunkVals[x, y, z];
                         //other values have to be checked if they are within another chunk or not
-                        //TODO: revise tables for condensation.x
-                        //TODO: Potentially fix table method
-                        currentCell.val[1] = neighborTable[edgeCase, 4] ? chunkVals[x, y, z + 1]         : GetValue(edgeCase,4,x,y,z);
-                        currentCell.val[2] = neighborTable[edgeCase, 5] ? chunkVals[x + 1, y, z + 1]     : GetValue(edgeCase,5,x,y,z);
-                        currentCell.val[3] = neighborTable[edgeCase, 1] ? chunkVals[x + 1, y, z]         : GetValue(edgeCase,1,x,y,z);
-                        currentCell.val[4] = neighborTable[edgeCase, 2] ? chunkVals[x, y + 1, z]         : GetValue(edgeCase,2,x,y,z); //something might be wrong here
-                        currentCell.val[5] = neighborTable[edgeCase, 6] ? chunkVals[x, y + 1, z + 1]     : GetValue(edgeCase,6,x,y,z);
-                        currentCell.val[6] = neighborTable[edgeCase, 7] ? chunkVals[x + 1, y + 1, z + 1] : GetValue(edgeCase,7,x,y,z);
-                        currentCell.val[7] = neighborTable[edgeCase, 3] ? chunkVals[x + 1, y + 1, z]     : GetValue(edgeCase,3,x,y,z);
+                        currentCell.val[1] = LookupTables.NeighborTable[edgeCase, 4] ? chunkVals[x, y, z + 1]         : GetValue(edgeCase,4,x,y,z);
+                        currentCell.val[2] = LookupTables.NeighborTable[edgeCase, 5] ? chunkVals[x + 1, y, z + 1] : GetValue(edgeCase, 5, x, y, z);
+                        currentCell.val[3] = LookupTables.NeighborTable[edgeCase, 1] ? chunkVals[x + 1, y, z] : GetValue(edgeCase, 1, x, y, z);
+                        currentCell.val[4] = LookupTables.NeighborTable[edgeCase, 2] ? chunkVals[x, y + 1, z] : GetValue(edgeCase, 2, x, y, z);
+                        currentCell.val[5] = LookupTables.NeighborTable[edgeCase, 6] ? chunkVals[x, y + 1, z + 1] : GetValue(edgeCase, 6, x, y, z);
+                        currentCell.val[6] = LookupTables.NeighborTable[edgeCase, 7] ? chunkVals[x + 1, y + 1, z + 1] : GetValue(edgeCase, 7, x, y, z);
+                        currentCell.val[7] = LookupTables.NeighborTable[edgeCase, 3] ? chunkVals[x + 1, y + 1, z] : GetValue(edgeCase, 3, x, y, z);
                     }
-                    #region copypasta
-                    /*
-                    (chunkNeighbors[4] != null) && GetNeighboringValue(edgeCase,4,x,y,z)
-                    (chunkNeighbors[5] != null) && GetNeighboringValue(edgeCase,5,x,y,z)
-                    (chunkNeighbors[1] != null) && GetNeighboringValue(edgeCase,1,x,y,z)
-                    (chunkNeighbors[2] != null) && GetNeighboringValue(edgeCase,2,x,y,z)
-                    (chunkNeighbors[6] != null) && GetNeighboringValue(edgeCase,6,x,y,z)
-                    (chunkNeighbors[7] != null) && GetNeighboringValue(edgeCase,7,x,y,z)
-                    (chunkNeighbors[3] != null) && GetNeighboringValue(edgeCase,3,x,y,z)
-                      
-                    (chunkNeighbors[edgeCase <= 4 ?edgeCase : 4] != null) && GetNeighboringValue(edgeCase,4,x,y,z)
-                    (chunkNeighbors[edgeCase <= 5 ?edgeCase : 5] != null) && GetNeighboringValue(edgeCase,5,x,y,z)
-                    (chunkNeighbors[edgeCase <= 1 ?edgeCase : 1] != null) && GetNeighboringValue(edgeCase,1,x,y,z)
-                    (chunkNeighbors[edgeCase <= 2 ?edgeCase : 2] != null) && GetNeighboringValue(edgeCase,2,x,y,z)
-                    (chunkNeighbors[edgeCase <= 6 ?edgeCase : 6] != null) && GetNeighboringValue(edgeCase,6,x,y,z)
-                    (chunkNeighbors[edgeCase <= 7 ?edgeCase : 7] != null) && GetNeighboringValue(edgeCase,7,x,y,z)
-                    (chunkNeighbors[edgeCase <= 3 ?edgeCase : 3] != null) && GetNeighboringValue(edgeCase,3,x,y,z) 
-                     */
-                    #endregion
 
                     //add vertex positions to the current step
                     currentCell.p[0] = new Vector3(x     - xPos, y     - yPos, z     - zPos);
@@ -201,9 +154,9 @@ public class Chunk : MonoBehaviour
 
     private bool GetValue(int currentEdge, int pos, int x, int y, int z)
     {
-        int actionX = (int)chunkTable[pos, currentEdge].x;
-        int actionY = (int)chunkTable[pos, currentEdge].y;
-        int actionZ = (int)chunkTable[pos, currentEdge].z;
+        int actionX = (int)LookupTables.ChunkTable[pos, currentEdge].x;
+        int actionY = (int)LookupTables.ChunkTable[pos, currentEdge].y;
+        int actionZ = (int)LookupTables.ChunkTable[pos, currentEdge].z;
 
         switch (actionX)
         {
@@ -251,70 +204,8 @@ public class Chunk : MonoBehaviour
         {
             return chunkNeighbors[bitResult].chunkVals[actionX, actionY, actionZ];
         }
-        /*
-        if (chunkNeighbors[currentEdge <= pos ? currentEdge : pos] != null)
-        {
-            return chunkNeighbors[currentEdge <= pos ? currentEdge : pos].chunkVals[actionX, actionY, actionZ]; 
-        }
-         */
+
         return false;
-    }
-
-    /// <summary>
-    /// Get the correct value for a specific point in proper neighboring chunk
-    /// </summary>
-    /// <param name="currentEdge"></param>
-    /// <param name="requiredPosition"></param>
-    /// <param name="x"></param>
-    /// <param name="y"></param>
-    /// <param name="z"></param>
-    /// <returns></returns>
-    private bool GetNeighboringValue(int currentEdge, int requiredPosition, int x, int y, int z)
-    {
-        int actionX = (int)chunkTable[requiredPosition,currentEdge].x;
-        int actionY = (int)chunkTable[requiredPosition,currentEdge].y;
-        int actionZ = (int)chunkTable[requiredPosition,currentEdge].z;
-
-        switch (actionX)
-        {
-            case 0:
-                actionX = 0;
-                break;
-            case 1:
-                actionX = x;
-                break;
-            case 2:
-                actionX = x + 1;
-                break;
-        }
-
-        switch (actionY)
-        {
-            case 0:
-                actionY = 0;
-                break;
-            case 1:
-                actionY = y;
-                break;
-            case 2:
-                actionY = y + 1;
-                break;
-        }
-
-        switch (actionZ)
-        {
-            case 0:
-                actionZ = 0;
-                break;
-            case 1:
-                actionZ = z;
-                break;
-            case 2:
-                actionZ = z + 1;
-                break;
-        }
-
-        return chunkNeighbors[currentEdge <= requiredPosition ?currentEdge : requiredPosition].chunkVals[actionX,actionY,actionZ];
     }
 
     public void SetChunkRefs(int nCase, Chunk x, Chunk y, Chunk z, Chunk xy, Chunk xz, Chunk yz, Chunk xyz)

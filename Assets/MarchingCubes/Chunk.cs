@@ -11,7 +11,7 @@ public class Chunk : MonoBehaviour
     private Vector3 ChunkPos;
     public Vector3 ChunkID = new Vector3(0,0,0);
 
-    private bool[,,] chunkVals = new bool[4,4,4];
+    private Node[,,] chunkVals = new Node[4,4,4];
 
     //debug cubes
     private DebugCube[,,] debugCubes = new DebugCube[4,4,4];
@@ -52,12 +52,20 @@ public class Chunk : MonoBehaviour
             {
                 for (int z = 0; z < size; z++)
                 {
+                    /*
                     Transform currentDebug = Instantiate(DebugCube, new Vector3(x + transform.position.x, y + transform.position.y, z + transform.position.z), Quaternion.identity) as Transform;
                     currentDebug.SetParent(this.transform);
                     debugCubes[x, y, z] = currentDebug.GetComponent<DebugCube>();
-                    if (Random.Range(0,2) == 0)
+                    */
+                    int UVx = Random.Range(0, 2);
+                    int UVy = Random.Range(0, 2);
+                    if (Random.Range(0, 2) == 0)
                     {
-                        chunkVals[x, y, z] = true;
+                        chunkVals[x, y, z] = new Node(true, UVx, UVy);
+                    }
+                    else
+                    {
+                        chunkVals[x, y, z] = new Node(false, UVx, UVy);
                     }
                     
                 }
@@ -73,7 +81,7 @@ public class Chunk : MonoBehaviour
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hitInfo))
             {
                 hitInfo.transform.GetComponent<MeshRenderer>().material.color = new Color(1,0,0);
-                chunkVals[(int)hitInfo.transform.position.x - xPos,(int)hitInfo.transform.position.y - yPos,(int)hitInfo.transform.position.z - zPos] = true;
+                chunkVals[(int)hitInfo.transform.position.x - xPos,(int)hitInfo.transform.position.y - yPos,(int)hitInfo.transform.position.z - zPos].Value = true;
                 MarchChunk();
             }
         }
@@ -101,32 +109,32 @@ public class Chunk : MonoBehaviour
                 for(int z = 0; z < size; z++)
                 {
                     int edgeCase = GetEdgeCaseIndex(x, y, z, size);
-                    debugCubes[x, y, z].edgeCase = edgeCase;
+                    //debugCubes[x, y, z].edgeCase = edgeCase;
                     //if we are not bordering any edges yet, proceed normally by adding vertex values
                     if (edgeCase == 0)
                     {
-                        currentCell.val[0] = chunkVals[x, y, z];
-                        currentCell.val[1] = chunkVals[x, y, z + 1];
-                        currentCell.val[2] = chunkVals[x + 1, y, z + 1];
-                        currentCell.val[3] = chunkVals[x + 1, y, z];
-                        currentCell.val[4] = chunkVals[x, y + 1, z];
-                        currentCell.val[5] = chunkVals[x, y + 1, z + 1];
-                        currentCell.val[6] = chunkVals[x + 1, y + 1, z + 1];
-                        currentCell.val[7] = chunkVals[x + 1, y + 1, z];
+                        currentCell.val[0] = chunkVals[x, y, z].Value;
+                        currentCell.val[1] = chunkVals[x, y, z + 1].Value;
+                        currentCell.val[2] = chunkVals[x + 1, y, z + 1].Value;
+                        currentCell.val[3] = chunkVals[x + 1, y, z].Value;
+                        currentCell.val[4] = chunkVals[x, y + 1, z].Value;
+                        currentCell.val[5] = chunkVals[x, y + 1, z + 1].Value;
+                        currentCell.val[6] = chunkVals[x + 1, y + 1, z + 1].Value;
+                        currentCell.val[7] = chunkVals[x + 1, y + 1, z].Value;
                     }
                     //when we arrive at any edge, we have to start checking for available neighboring chunks
                     else
                     {
                         //vertex value 0 never has to be doublechecked, it is always within the current chunk
-                        currentCell.val[0] = chunkVals[x, y, z];
+                        currentCell.val[0] = chunkVals[x, y, z].Value;
                         //other values have to be checked if they are within another chunk or not
-                        currentCell.val[1] = LookupTables.NeighborTable[edgeCase, 4] ? chunkVals[x, y, z + 1]         : GetValue(edgeCase,4,x,y,z);
-                        currentCell.val[2] = LookupTables.NeighborTable[edgeCase, 5] ? chunkVals[x + 1, y, z + 1] : GetValue(edgeCase, 5, x, y, z);
-                        currentCell.val[3] = LookupTables.NeighborTable[edgeCase, 1] ? chunkVals[x + 1, y, z] : GetValue(edgeCase, 1, x, y, z);
-                        currentCell.val[4] = LookupTables.NeighborTable[edgeCase, 2] ? chunkVals[x, y + 1, z] : GetValue(edgeCase, 2, x, y, z);
-                        currentCell.val[5] = LookupTables.NeighborTable[edgeCase, 6] ? chunkVals[x, y + 1, z + 1] : GetValue(edgeCase, 6, x, y, z);
-                        currentCell.val[6] = LookupTables.NeighborTable[edgeCase, 7] ? chunkVals[x + 1, y + 1, z + 1] : GetValue(edgeCase, 7, x, y, z);
-                        currentCell.val[7] = LookupTables.NeighborTable[edgeCase, 3] ? chunkVals[x + 1, y + 1, z] : GetValue(edgeCase, 3, x, y, z);
+                        currentCell.val[1] = LookupTables.NeighborTable[edgeCase, 4] ? chunkVals[x, y, z + 1].Value : GetValue(edgeCase, 4, x, y, z);
+                        currentCell.val[2] = LookupTables.NeighborTable[edgeCase, 5] ? chunkVals[x + 1, y, z + 1].Value : GetValue(edgeCase, 5, x, y, z);
+                        currentCell.val[3] = LookupTables.NeighborTable[edgeCase, 1] ? chunkVals[x + 1, y, z].Value : GetValue(edgeCase, 1, x, y, z);
+                        currentCell.val[4] = LookupTables.NeighborTable[edgeCase, 2] ? chunkVals[x, y + 1, z].Value : GetValue(edgeCase, 2, x, y, z);
+                        currentCell.val[5] = LookupTables.NeighborTable[edgeCase, 6] ? chunkVals[x, y + 1, z + 1].Value : GetValue(edgeCase, 6, x, y, z);
+                        currentCell.val[6] = LookupTables.NeighborTable[edgeCase, 7] ? chunkVals[x + 1, y + 1, z + 1].Value : GetValue(edgeCase, 7, x, y, z);
+                        currentCell.val[7] = LookupTables.NeighborTable[edgeCase, 3] ? chunkVals[x + 1, y + 1, z].Value : GetValue(edgeCase, 3, x, y, z);
                     }
 
                     //add vertex positions to the current step
@@ -140,9 +148,11 @@ public class Chunk : MonoBehaviour
                     currentCell.p[7] = new Vector3(x + 1 - xPos, y + 1 - yPos, z     - zPos);   
         
                     //DebugSection
-                    debugCubes[x, y, z].val = currentCell.val;
-                    debugCubes[x, y, z].p = currentCell.p;
+                    //debugCubes[x, y, z].val = currentCell.val;
+                    //debugCubes[x, y, z].p = currentCell.p;
 
+                    //add material
+                    currentCell.mat = chunkVals[x, y, z].Material;  
 
                     //march current cell
                     marchingRenderer.MarchCell(currentCell);
@@ -202,7 +212,7 @@ public class Chunk : MonoBehaviour
         if (bitResult == 0){ bitResult = 1;}
         if (chunkNeighbors[bitResult] != null)
         {
-            return chunkNeighbors[bitResult].chunkVals[actionX, actionY, actionZ];
+            return chunkNeighbors[bitResult].chunkVals[actionX, actionY, actionZ].Value;
         }
 
         return false;

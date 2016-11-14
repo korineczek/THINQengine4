@@ -16,12 +16,14 @@ public class MarchingCubes : MonoBehaviour
     //mesh info
     private Mesh mesh;
     private List<Vector3> vertices;
-    private List<int> triangles; 
+    private List<int> triangles;
+    private List<Vector2> UVs;
 
     public void Awake()
     {
         chunkOffset = this.transform.position;
         vertices = new List<Vector3>();
+        UVs = new List<Vector2>();
         triangles = new List<int>();
     }
 
@@ -105,6 +107,9 @@ public class MarchingCubes : MonoBehaviour
             triangles.Add(index);
             triangles.Add(index + 1);
             triangles.Add(index + 2);
+            UVs.Add(cell.mat);
+            UVs.Add(cell.mat);
+            UVs.Add(cell.mat);
         }
 
     }
@@ -143,6 +148,7 @@ public class MarchingCubes : MonoBehaviour
         mesh.name = "TestMesh";
         mesh.SetVertices(vertices);
         mesh.SetTriangles(triangles,0);
+        mesh.SetUVs(0,UVs);
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
         return mesh;
@@ -153,5 +159,6 @@ public class MarchingCubes : MonoBehaviour
         //clear previous shit
         vertices = new List<Vector3>();
         triangles = new List<int>();
+        UVs = new List<Vector2>();
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 
 /// <summary>
 /// Static class for storing all the lookup tables that are required for the marching cube algorithm to work
+/// also stores functions commonly shared across the marching cubes algoritm.
 /// </summary>
 public static class LookupTables {
 

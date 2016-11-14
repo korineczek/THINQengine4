@@ -4,7 +4,7 @@ using System.Collections;
 public class World : MonoBehaviour {
 
     private bool[,,] worldVals = new bool[3,3,3];
-    private Chunk[,,] chunks = new Chunk[3,3,3];
+    private Chunk[,,] chunks = new Chunk[2,2,2];
     public Transform ChunkPrefab;
 
 	// Use this for initialization
@@ -17,7 +17,7 @@ public class World : MonoBehaviour {
 	        {
 	            for (int k = 0; k < chunks.GetLength(2); k++)
 	            {
-                    Transform currentChunk = Instantiate(ChunkPrefab, new Vector3(i * 4f, j * 4f, k * 4f), Quaternion.identity) as Transform;
+                    Transform currentChunk = Instantiate(ChunkPrefab, new Vector3(i * 4, j * 4, k * 4), Quaternion.identity) as Transform;
 	                Chunk chunkScript = currentChunk.GetComponent<Chunk>();
                     chunkScript.ChunkID = new Vector3(i,j,k);
 	                chunks[i, j, k] = chunkScript;

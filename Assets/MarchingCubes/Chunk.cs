@@ -12,6 +12,11 @@ public class Chunk : MonoBehaviour
     public Vector3 ChunkID = new Vector3(0,0,0);
 
     private bool[,,] chunkVals = new bool[4,4,4];
+
+    //debug cubes
+    private DebugCube[,,] debugCubes = new DebugCube[4,4,4];
+
+
     private GridCell currentCell;
     private MarchingCubes marchingRenderer;
 
@@ -73,11 +78,14 @@ public class Chunk : MonoBehaviour
                 {
                     Transform currentDebug = Instantiate(DebugCube, new Vector3(x + transform.position.x, y + transform.position.y, z + transform.position.z), Quaternion.identity) as Transform;
                     currentDebug.SetParent(this.transform);
+                    debugCubes[x, y, z] = currentDebug.GetComponent<DebugCube>();
                     //debug stitch test
+                    /*
                     if (y == 0 && z>0)
                     {
                         chunkVals[x, 0, z] = true;
                     }
+                     */
                 }
             }
         }
@@ -119,6 +127,7 @@ public class Chunk : MonoBehaviour
                 for(int z = 0; z < size; z++)
                 {
                     int edgeCase = GetEdgeCaseIndex(x, y, z, size);
+                    debugCubes[x, y, z].edgeCase = edgeCase;
                     //if we are not bordering any edges yet, proceed normally by adding vertex values
                     if (edgeCase == 0)
                     {
@@ -147,7 +156,7 @@ public class Chunk : MonoBehaviour
                         currentCell.val[6] = neighborTable[edgeCase, 7] ? chunkVals[x + 1, y + 1, z + 1] : GetValue(edgeCase,7,x,y,z);
                         currentCell.val[7] = neighborTable[edgeCase, 3] ? chunkVals[x + 1, y + 1, z]     : GetValue(edgeCase,3,x,y,z);
                     }
-
+                    #region copypasta
                     /*
                     (chunkNeighbors[4] != null) && GetNeighboringValue(edgeCase,4,x,y,z)
                     (chunkNeighbors[5] != null) && GetNeighboringValue(edgeCase,5,x,y,z)
@@ -165,6 +174,7 @@ public class Chunk : MonoBehaviour
                     (chunkNeighbors[edgeCase <= 7 ?edgeCase : 7] != null) && GetNeighboringValue(edgeCase,7,x,y,z)
                     (chunkNeighbors[edgeCase <= 3 ?edgeCase : 3] != null) && GetNeighboringValue(edgeCase,3,x,y,z) 
                      */
+                    #endregion
 
                     //add vertex positions to the current step
                     currentCell.p[0] = new Vector3(x     - xPos, y     - yPos, z     - zPos);
@@ -176,6 +186,11 @@ public class Chunk : MonoBehaviour
                     currentCell.p[6] = new Vector3(x + 1 - xPos, y + 1 - yPos, z + 1 - zPos);
                     currentCell.p[7] = new Vector3(x + 1 - xPos, y + 1 - yPos, z     - zPos);   
         
+                    //DebugSection
+                    debugCubes[x, y, z].val = currentCell.val;
+                    debugCubes[x, y, z].p = currentCell.p;
+
+
                     //march current cell
                     marchingRenderer.MarchCell(currentCell);
                 }
@@ -183,7 +198,6 @@ public class Chunk : MonoBehaviour
         }
         marchingRenderer.CreateMesh(this.GetComponent<MeshFilter>().mesh);
     }
-
 
     private bool GetValue(int currentEdge, int pos, int x, int y, int z)
     {
@@ -229,10 +243,20 @@ public class Chunk : MonoBehaviour
                 actionZ = z + 1;
                 break;
         }
+
+        //bitwise operations to determine right chunk
+        int bitResult = currentEdge & pos;
+        if (bitResult == 0){ bitResult = 1;}
+        if (chunkNeighbors[bitResult] != null)
+        {
+            return chunkNeighbors[bitResult].chunkVals[actionX, actionY, actionZ];
+        }
+        /*
         if (chunkNeighbors[currentEdge <= pos ? currentEdge : pos] != null)
         {
             return chunkNeighbors[currentEdge <= pos ? currentEdge : pos].chunkVals[actionX, actionY, actionZ]; 
         }
+         */
         return false;
     }
 
